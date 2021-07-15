@@ -1,1 +1,2 @@
 # fuzzer
+Simple fuzzer
