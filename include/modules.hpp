@@ -10,20 +10,20 @@
 
 class abstract_module {
 public:
-    virtual abstract_observer* create_observer() const = 0;
+    virtual abstract_observer* create_observer(const pid_t& pid_) const = 0;
 };
 
 class usual_module: public abstract_module {
 public:
-    abstract_observer* create_observer() const override{
-        return new usual_observer;
+    abstract_observer* create_observer(const pid_t& pid_) const override{
+        return new usual_observer(pid_);
     }
 };
 
 class target_module: public abstract_module {
 public:
-    abstract_observer* create_observer() const override{
-        return new target_observer;
+    abstract_observer* create_observer(const pid_t& pid_) const override{
+        return new target_observer(pid_);
     }
 };
 

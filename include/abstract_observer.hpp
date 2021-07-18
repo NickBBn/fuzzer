@@ -10,7 +10,8 @@
 
 class abstract_observer {
 public:
-    void print_regs(const pid_t& pid, std::ostream& out) const{
+    explicit abstract_observer(const pid_t& pid_): pid(pid_){};
+    void print_regs(std::ostream& out) const{
         struct user_regs_struct regs{};
         ptrace(PTRACE_GETREGS, pid, NULL, &regs);
         out << "REGS: " << std::endl << std::hex << std::uppercase
@@ -42,7 +43,9 @@ public:
             << "R14 " << regs.r14 << std::endl
             << "R15 " << regs.r15 << std::endl;
     }
-    virtual void iamchild() const = 0;
+    virtual void observe() = 0;
+protected:
+    pid_t pid;
 };
 
 

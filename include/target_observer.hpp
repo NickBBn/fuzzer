@@ -9,8 +9,9 @@
 
 class target_observer: public abstract_observer{
 public:
-    void iamchild() const override{
-        std::cout << "Target observer" << std::endl;
+    explicit target_observer(const pid_t& pid_): abstract_observer(pid_){}
+    void observe() override {
+        std::cout << "target observe" << std::endl;
     }
 };
 
