@@ -6,7 +6,7 @@
 int main() {
     std::cout << "Hello, World!" << std::endl;
     //return EXIT_SUCCESS;
-    abort();
+    //abort();
     std::vector<size_t> a;
     for (size_t i = 0; i < 10; ++i){
         a[i] = i; // imitate sigsegv;
