@@ -17,12 +17,15 @@ HunterGate(
         SHA1 "e14bc153a7f16d6a5eeec845fb0283c8fad8c358"
 )
 
-project(parser)
+project(fuzzer)
 
 hunter_add_package(nlohmann_json)
 find_package(nlohmann_json CONFIG REQUIRED)
 
-add_executable(${PROJECT_NAME} exec/main.cpp)
+add_library(${PROJECT_NAME} STATIC
+        include/abstract_observer.hpp include/usual_observer.hpp include/modules.hpp
+        source/void.cpp include/target_observer.hpp)
+add_executable(parser exec/main.cpp)
 add_executable(debugger debugger/main.cpp)
 
 
@@ -33,3 +36,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 target_link_libraries(${PROJECT_NAME}
         nlohmann_json::nlohmann_json)
+target_link_libraries(parser ${PROJECT_NAME})
+target_link_libraries(debugger ${PROJECT_NAME})

@@ -1,13 +1,10 @@
 #include <iostream>
-
 #include "sys/ptrace.h"
-#include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include "sys/user.h"
-#include "sys/reg.h"
-#include "sys/syscall.h"
+#include "modules.hpp"
 
+/*
 void print_regs(const pid_t& pid, std::ostream& out){
     struct user_regs_struct regs{};
     ptrace(PTRACE_GETREGS, pid, NULL, &regs);
@@ -41,11 +38,16 @@ void print_regs(const pid_t& pid, std::ostream& out){
         << "R15 " << regs.r15 << std::endl;
 
 }
-
+*/
 int main() {
+    auto* module = new usual_module();
+    const abstract_observer* observer = module->create_observer();
     int status = 0;
     pid_t pid = fork();
-    if (pid == 0){ //child process
+    if (pid == -1){
+        std::cout << "Unable to create child process";
+        return EXIT_FAILURE;
+    } else if (pid == 0){ //child process
         ptrace(PTRACE_TRACEME, 0, NULL, NULL);
         execl("parser", (const char*)nullptr, (char*)nullptr);
     } else { //parent process
@@ -57,22 +59,16 @@ int main() {
             }
             if (WIFSTOPPED(status)){
                 int signal = WSTOPSIG(status);
-                print_regs(pid, std::cout);
                 if (signal != SIGTRAP){
                     std::cout << "Child interrupted witn signal " << signal << std::endl;
-                    print_regs(pid, std::cout);
+                    observer->print_regs(pid, std::cout);
+                    observer->iamchild();
                     ptrace(PTRACE_CONT, pid, NULL, NULL);
                     break;
                 }
             }
             ptrace(PTRACE_CONT, pid, NULL, NULL);
-            //orig_rax = ptrace(PTRACE_PEEKUSER,
-            //                  pid, 8 * ORIG_RAX,
-            //                  NULL);
-            //printf("The child made a "
-            //       "system call %ld\n", orig_rax);
-            //ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
         }
     }
-    return 0;
+    return EXIT_SUCCESS;
 }
