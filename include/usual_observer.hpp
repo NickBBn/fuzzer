@@ -6,39 +6,40 @@
 #define PARSER_USUAL_OBSERVER_HPP
 
 #include "abstract_observer.hpp"
+#include <sstream>
+#include <fstream>
 
 class usual_observer: public abstract_observer{
 public:
     explicit usual_observer(const pid_t& pid_): abstract_observer(pid_){}
-    void observe() override{
-        int status = 0;
-        if (pid == -1){
-            std::cout << "Unable to create child process";
-            throw;
-        } else if (pid == 0){ //child process
-            ptrace(PTRACE_TRACEME, 0, NULL, NULL);
-            execl("parser", (const char*)nullptr, (char*)nullptr);
-        } else { //parent process
-            while(true){
-                wait(&status);
-                if (WIFEXITED(status)) {
-                    std::cout << "Child ended successfully" << std::endl;
-                    break;
-                }
-                if (WIFSTOPPED(status)){
-                    int signal = WSTOPSIG(status);
-                    if (signal != SIGTRAP){
-                        std::cout << "Child interrupted witn signal " << signal << std::endl;
-                        print_regs(std::cout);
-                        ptrace(PTRACE_CONT, pid, NULL, NULL);
-                        break;
-                    }
-                }
+    void observe(const std::string& filename) override;
+};
+
+void usual_observer::observe(const std::string& filename) {
+    int status = 0;
+    std::stringstream info;
+    while(true){
+        waitpid(pid, &status, 0);
+        if (WIFEXITED(status)) {
+            info << "Child ended successfully with exit code "
+                      << WEXITSTATUS(status) << std::endl;
+            break;
+        }
+        if (WIFSTOPPED(status)){
+            int signal = WSTOPSIG(status);
+            if (signal != SIGTRAP){
                 ptrace(PTRACE_CONT, pid, NULL, NULL);
+                info << "Child interrupted with signal " << signal << std::endl;
+                print_regs(info);
+                break;
             }
         }
+        ptrace(PTRACE_CONT, pid, NULL, NULL);
     }
-};
+    std::ofstream report(filename, std::ios::app);
+    report << info.str();
+    report.close();
+}
 
 
 #endif //PARSER_USUAL_OBSERVER_HPP
