@@ -23,21 +23,24 @@ void usual_observer::observe(const std::string& filename) {
         if (WIFEXITED(status)) {
             info << "Child ended successfully with exit code "
                       << WEXITSTATUS(status) << std::endl;
+            std::cout << "Child ended successfully with exit code "
+                 << WEXITSTATUS(status) << std::endl;
             break;
         }
         if (WIFSTOPPED(status)){
             int signal = WSTOPSIG(status);
             if (signal != SIGTRAP){
-                ptrace(PTRACE_CONT, pid, NULL, NULL);
                 info << "Child interrupted with signal " << signal << std::endl;
+                std::cout << "Child interrupted with signal " << signal << std::endl;
                 print_regs(info);
+                ptrace(PTRACE_CONT, pid, NULL, NULL);
                 break;
             }
         }
         ptrace(PTRACE_CONT, pid, NULL, NULL);
     }
     std::ofstream report(filename, std::ios::app);
-    report << info.str();
+    report << info.str() << std::endl;
     report.close();
 }
 

@@ -11,6 +11,10 @@
 #include "usual_input_generator.hpp"
 
 class abstract_module {
+protected:
+    abstract_module(){
+        srand(time(NULL));
+    }
 public:
     virtual abstract_observer* create_observer(const pid_t& pid_) const = 0;
     virtual abstract_launcher* create_launcher(const std::string& exe) const = 0;
