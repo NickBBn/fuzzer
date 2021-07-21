@@ -22,21 +22,17 @@ project(fuzzer)
 hunter_add_package(nlohmann_json)
 find_package(nlohmann_json CONFIG REQUIRED)
 
-add_library(${PROJECT_NAME} STATIC
-        include/abstract_observer.hpp include/usual_observer.hpp include/modules.hpp
-        source/void.cpp include/target_observer.hpp include/abstract_launcher.hpp
-        include/usual_launcher.hpp include/abstract_input_generator.hpp
-        include/usual_input_generator.hpp)
+add_library(${PROJECT_NAME} INTERFACE)
 add_executable(parser parser/main.cpp)
 add_executable(debugger debugger/main.cpp)
 
 
-target_include_directories(${PROJECT_NAME} PUBLIC
-        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+target_include_directories(${PROJECT_NAME}
+        INTERFACE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
         "$<INSTALL_INTERFACE:include>"
         )
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(${PROJECT_NAME} INTERFACE
         nlohmann_json::nlohmann_json)
-target_link_libraries(parser ${PROJECT_NAME})
+target_link_libraries(parser nlohmann_json::nlohmann_json)
 target_link_libraries(debugger ${PROJECT_NAME})

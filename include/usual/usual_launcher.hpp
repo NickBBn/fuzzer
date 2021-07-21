@@ -5,11 +5,11 @@
 #ifndef FUZZER_USUAL_LAUNCHER_HPP
 #define FUZZER_USUAL_LAUNCHER_HPP
 
-#include "abstract_launcher.hpp"
+#include "abstract/launcher.hpp"
 
-class usual_launcher: public abstract_launcher {
+class usual_launcher: public launcher {
 public:
-    explicit usual_launcher(const std::string& exe): abstract_launcher(exe){}
+    explicit usual_launcher(const std::string& exe): launcher(exe){}
     pid_t launch(const std::string& filename) override;
 };
 

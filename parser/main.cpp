@@ -2,6 +2,18 @@
 #include "nlohmann/json.hpp"
 #include <fstream>
 
+bool target_function(const nlohmann::json& json, std::ostream& out){
+    if (json["key1"] != "static string"){
+        return false;
+    }
+    if (json["search_type"] == "STACK"){
+        out << "STACK " << json["key2"] << std::endl;
+    } else if (json["search_type"] == "QUEUE"){
+        out << "QUEUE " << json["key2"] << std::endl;
+    } else return false;
+    return true;
+}
+
 int main(int argc, char* argv[]) {
     if (argc != 2 ){
         std::cout << "Program requires argument" << std::endl;
@@ -14,19 +26,17 @@ int main(int argc, char* argv[]) {
         std::cout << "could not open file" << std::endl;
         return EXIT_FAILURE;
     }
-    std::cout << "Hello, World!" << std::endl;
+
     nlohmann::json input;
     input_file >> input;
+    bool res;
+    if (input.contains("key1")){
+        res = target_function(input, std::cout);
+        if (!res) return EXIT_FAILURE;
+    }
     for (const auto& element : input.items()){
         std::cout << element.key() << ": " << element.value() << std::endl;
     }
     input_file.close();
-    //return EXIT_SUCCESS;
-    //abort();
-    /*
-    std::vector<size_t> a;
-    for (size_t i = 0; i < 10; ++i){
-        a[i] = i; // imitate sigsegv;
-    }
-     */
+    return EXIT_SUCCESS;
 }

@@ -8,17 +8,17 @@
 #include <unistd.h>
 #include "sys/user.h"
 
-class abstract_observer {
+class observer {
 public:
     void print_regs(std::ostream& out) const;
     virtual void observe(const std::string& filename) = 0;
-    virtual ~abstract_observer() = default;
+    virtual ~observer() = default;
 protected:
-    explicit abstract_observer(const pid_t& pid_): pid(pid_){};
+    explicit observer(const pid_t& pid_): pid(pid_){};
     pid_t pid;
 };
 
-void abstract_observer::print_regs(std::ostream &out) const {
+void observer::print_regs(std::ostream &out) const {
     struct user_regs_struct regs{};
     ptrace(PTRACE_GETREGS, pid, NULL, &regs);
     out << "REGS: " << std::endl << std::hex << std::uppercase

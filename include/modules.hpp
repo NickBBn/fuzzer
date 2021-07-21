@@ -5,10 +5,11 @@
 #ifndef PARSER_MODULES_HPP
 #define PARSER_MODULES_HPP
 
-#include "usual_observer.hpp"
-#include "target_observer.hpp"
-#include "usual_launcher.hpp"
-#include "usual_input_generator.hpp"
+#include "usual/usual_observer.hpp"
+#include "target/target_input_generator.hpp"
+#include "usual/usual_launcher.hpp"
+#include "usual/usual_input_generator.hpp"
+#include "memory"
 
 class abstract_module {
 protected:
@@ -16,28 +17,34 @@ protected:
         srand(time(NULL));
     }
 public:
-    virtual abstract_observer* create_observer(const pid_t& pid_) const = 0;
-    virtual abstract_launcher* create_launcher(const std::string& exe) const = 0;
-    virtual abstract_input_generator* create_input_generator() const = 0;
+    virtual std::unique_ptr<observer> create_observer(const pid_t& pid_) const = 0;
+    virtual std::unique_ptr<launcher> create_launcher(const std::string& exe) const = 0;
+    virtual std::unique_ptr<input_generator> create_input_generator() const = 0;
 };
 
 class usual_module: public abstract_module {
 public:
-    abstract_observer* create_observer(const pid_t& pid_) const override{
-        return new usual_observer(pid_);
+    std::unique_ptr<observer> create_observer(const pid_t& pid_) const override{
+        return std::make_unique<usual_observer>(usual_observer(pid_));
     }
-    abstract_launcher* create_launcher(const std::string& exe) const override{
-        return new usual_launcher(exe);
+    std::unique_ptr<launcher> create_launcher(const std::string& exe) const override{
+        return std::make_unique<usual_launcher>(usual_launcher(exe));
     }
-    abstract_input_generator* create_input_generator() const override{
-        return new usual_input_generator;
+    std::unique_ptr<input_generator> create_input_generator() const override{
+        return std::make_unique<usual_input_generator>(usual_input_generator());
     }
 };
 
 class target_module: public abstract_module {
 public:
-    abstract_observer* create_observer(const pid_t& pid_) const override{
-        return new target_observer(pid_);
+    std::unique_ptr<observer> create_observer(const pid_t& pid_) const override{
+        return std::make_unique<usual_observer>(usual_observer(pid_));
+    }
+    std::unique_ptr<launcher> create_launcher(const std::string& exe) const override{
+        return std::make_unique<usual_launcher>(usual_launcher(exe));
+    }
+    std::unique_ptr<input_generator>create_input_generator() const override{
+        return std::make_unique<target_input_generator>(target_input_generator());
     }
 };
 
